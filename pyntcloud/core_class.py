@@ -48,6 +48,7 @@ class PyntCloud(object):
             setattr(self, key, val)
         # store raw xyz values to share memory along structures
         self.xyz = self.points[["x", "y", "z"]].values
+        self.rgb = self.points[["r", "g", "b"]].values
         self.centroid = self.xyz.mean(0)
 
     def __repr__(self):
@@ -346,6 +347,7 @@ class PyntCloud(object):
         """
         if name in ALL_STRUCTURES:
             info = ALL_STRUCTURES[name].extract_info(pyntcloud=self)
+            #print(info)
             structure = ALL_STRUCTURES[name](**info, **kwargs)
             structure.compute()
             structure_added = structure.get_and_set(self)

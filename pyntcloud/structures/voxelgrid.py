@@ -21,7 +21,7 @@ except ImportError:
 
 class VoxelGrid(Structure):
 
-    def __init__(self, *, points, n_x=1, n_y=1, n_z=1, size_x=None, size_y=None, size_z=None, regular_bounding_box=True):
+    def __init__(self, *, points, rgb, n_x=1, n_y=1, n_z=1, size_x=None, size_y=None, size_z=None, regular_bounding_box=True):
         """Grid of voxels with support for different build methods.
 
         Parameters
@@ -40,7 +40,7 @@ class VoxelGrid(Structure):
             If True, the bounding box of the point cloud will be adjusted
             in order to have all the dimensions of equal length.
         """
-        super().__init__(points=points)
+        super().__init__(points=points, rgb=rgb)
         self.x_y_z = [n_x, n_y, n_z]
         self.sizes = [size_x, size_y, size_z]
         self.regular_bounding_box = regular_bounding_box
@@ -51,6 +51,7 @@ class VoxelGrid(Structure):
         xyzmax = self._points.max(0)
 
         if self.regular_bounding_box:
+            #range = xyzmax - xyzmin
             #: adjust to obtain a minimum bounding box with all sides of equal length
             margin = max(xyzmax - xyzmin) - (xyzmax - xyzmin)
             xyzmin = xyzmin - margin / 2
@@ -71,8 +72,11 @@ class VoxelGrid(Structure):
         shape = []
         for i in range(3):
             # note the +1 in num
+            # for example n_x = 30 -> divide x_min to x_max into 30 equally sized samples and return the step size
             s, step = np.linspace(xyzmin[i], xyzmax[i], num=(self.x_y_z[i] + 1), retstep=True)
+            # list of arrays of each axis
             segments.append(s)
+            # size of spacing of each axis
             shape.append(step)
 
         self.segments = segments
@@ -80,6 +84,7 @@ class VoxelGrid(Structure):
 
         self.n_voxels = self.x_y_z[0] * self.x_y_z[1] * self.x_y_z[2]
 
+        # store the parameters of this voxelgrid
         self.id = "V({},{},{})".format(self.x_y_z, self.sizes, self.regular_bounding_box)
 
         # find where each point lies in corresponding segmented axis
@@ -147,6 +152,31 @@ class VoxelGrid(Structure):
 
         if mode == "binary":
             vector[np.unique(self.voxel_n)] = 1
+        
+        elif mode == "color":
+            # each voxel index has a rgba array
+            color = np.zeros((self.n_voxels,4))
+            
+            voxel_idxs = []
+            for i in range(len(self.voxel_n)):
+                # check if we already have seen an index
+                voxel_idx = self.voxel_n[i]
+                if(voxel_idx in voxel_idxs):
+                    continue
+                # new voxel_idx -- mark it as seen
+                voxel_idxs.append(voxel_idx)
+                # get the list indexes of the voxel_idx
+                voxel_list_idxs = np.where(self.voxel_n == voxel_idx)
+                # compute the mean color of these voxels
+                mean_color = np.mean(self._rgb[voxel_list_idxs], axis=0)
+                # append an alpha value of 1
+                color[voxel_idx] = np.append(mean_color, [1])
+                
+            # we need a shape of (n_X, n_Y, n_Z, 4), 4 for rgba
+            color = color.reshape(self.x_y_z + [4])
+            vector[np.unique(self.voxel_n)] = 1
+            vector = vector.reshape(self.x_y_z)
+            return vector, color
 
         elif mode == "density":
             count = np.bincount(self.voxel_n)
@@ -229,9 +259,9 @@ class VoxelGrid(Structure):
              output_name=None,
              width=800,
              height=500):
-        feature_vector = self.get_feature_vector(mode)
 
         if d == 2:
+            feature_vector = self.get_feature_vector(mode)
             if not is_matplotlib_avaliable:
                 raise ImportError("matplotlib is required for 2d plotting")
 
@@ -253,3 +283,15 @@ class VoxelGrid(Structure):
                                   output_name=output_name,
                                   width=width,
                                   height=height)
+        elif d == 4:
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            if mode == "binary":
+                voxels = self.get_feature_vector(mode)
+                ax.voxels(voxels, edgecolor='red')
+            elif mode == "color":
+                voxels, colors = self.get_feature_vector(mode=mode)
+                ax.voxels(voxels, edgecolor='red', facecolors=colors)
+            else:
+                raise NotImplementedError("Only color and binary are implemented.")
+            plt.show()

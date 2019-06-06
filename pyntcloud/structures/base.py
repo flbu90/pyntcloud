@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod, abstractclassmethod
 class Structure(ABC):
     """Base class for structures."""
 
-    def __init__(self, *, points):
+    def __init__(self, *, points, rgb):
         self._points = points
+        self._rgb = rgb
 
     def get_and_set(self, pyntcloud):
         pyntcloud.structures[self.id] = self
@@ -15,7 +16,8 @@ class Structure(ABC):
     def extract_info(cls, pyntcloud):
         """ABC API"""
         info = {
-            "points": pyntcloud.xyz
+            "points": pyntcloud.xyz,
+            "rgb":  pyntcloud.rgb
         }
         return info
 

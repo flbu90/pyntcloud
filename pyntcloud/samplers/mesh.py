@@ -95,9 +95,9 @@ class RandomMeshSampler(MeshSampler):
             result_rgb = (v1_rgb * u) + (v2_rgb * v) + ((1 - (u + v)) * v3_rgb)
             result_rgb = result_rgb.astype(np.uint8)
 
-            result["red"] = result_rgb[:, 0]
-            result["green"] = result_rgb[:, 1]
-            result["blue"] = result_rgb[:, 2]
+            result["r"] = result_rgb[:, 0]
+            result["g"] = result_rgb[:, 1]
+            result["b"] = result_rgb[:, 2]
 
         if self.normals:
             v1_normals = self.v1_normals[random_idx]

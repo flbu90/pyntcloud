@@ -53,7 +53,7 @@ class PyntCloud(object):
             self.rgb = self.points[["r", "g", "b"]].values
         except:
             #print("no rgb data in points")
-			return
+            return
 
     def __repr__(self):
         default = [

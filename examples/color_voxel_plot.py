@@ -6,6 +6,7 @@ num_points = 5
 
 points = pd.DataFrame(np.random.rand(num_points, 6))
 points.columns = ["x", "y", "z", "r", "g", "b"]
+#print(points.values)
 cloud = PyntCloud(points)
 
 #cloud = PyntCloud.from_file("D:/HSD/Libs/pyntcloud/examples/data/ankylosaurus_mesh.ply")
@@ -15,5 +16,12 @@ voxelgrid = cloud.structures[voxelgrid_id]
 #voxels, colors = voxelgrid.get_feature_vector(mode="color")
 voxelgrid.plot(d=4, mode="color")
 #voxelgrid.plot(d=4, mode="binary")
+
+voxels, colors = voxelgrid.get_feature_vector(mode="color")
+
+# removing unneccesary alpha value
+mcolor = colors[:,:,:,:3]
+#print(mcolor.shape)
+#print(mcolor)
 
 print("Done")

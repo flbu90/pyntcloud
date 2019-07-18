@@ -49,6 +49,7 @@ class PyntCloud(object):
         # store raw xyz values to share memory along structures
         self.xyz = self.points[["x", "y", "z"]].values
         self.centroid = self.xyz.mean(0)
+        self.rgb = None
         try:
             self.rgb = self.points[["r", "g", "b"]].values
         except:

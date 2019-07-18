@@ -6,6 +6,8 @@ class Structure(ABC):
 
     def __init__(self, *, points, rgb):
         self._points = points
+        if rgb is None:
+            return
         self._rgb = rgb
 
     def get_and_set(self, pyntcloud):

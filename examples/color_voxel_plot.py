@@ -2,7 +2,7 @@ from pyntcloud import PyntCloud
 import numpy as np
 import pandas as pd
 
-num_points = 5
+num_points = 100
 
 points = pd.DataFrame(np.random.rand(num_points, 6))
 points.columns = ["x", "y", "z", "r", "g", "b"]

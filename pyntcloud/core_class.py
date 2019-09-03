@@ -352,6 +352,8 @@ class PyntCloud(object):
         """
         if name in ALL_STRUCTURES:
             info = ALL_STRUCTURES[name].extract_info(pyntcloud=self)
+            if name == "delaunay3D" or name == "convex_hull":
+                del info["rgb"]
             #print(info)
             structure = ALL_STRUCTURES[name](**info, **kwargs)
             structure.compute()

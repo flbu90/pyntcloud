@@ -14,7 +14,7 @@ cloud = PyntCloud(points)
 voxelgrid_id = cloud.add_structure("voxelgrid", n_x=5, n_y=5, n_z=5)
 voxelgrid = cloud.structures[voxelgrid_id]
 #voxels, colors = voxelgrid.get_feature_vector(mode="color")
-voxelgrid.plot(d=4, mode="color")
+voxelgrid.plot(d=4, mode="color", edge_color="none")
 #voxelgrid.plot(d=4, mode="binary")
 
 voxels, colors = voxelgrid.get_feature_vector(mode="color")

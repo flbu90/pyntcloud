@@ -258,7 +258,8 @@ class VoxelGrid(Structure):
              axis=False,
              output_name=None,
              width=800,
-             height=500):
+             height=500,
+             edge_color='red'):
 
         if d == 2:
             feature_vector = self.get_feature_vector(mode)
@@ -288,10 +289,10 @@ class VoxelGrid(Structure):
             ax = fig.gca(projection='3d')
             if mode == "binary":
                 voxels = self.get_feature_vector(mode)
-                ax.voxels(voxels, edgecolor='red')
+                ax.voxels(voxels, edgecolor=edge_color)
             elif mode == "color":
                 voxels, colors = self.get_feature_vector(mode=mode)
-                ax.voxels(voxels, edgecolor='red', facecolors=colors)
+                ax.voxels(voxels, edgecolor=edge_color, facecolors=colors)
             else:
                 raise NotImplementedError("Only color and binary are implemented.")
             plt.show()

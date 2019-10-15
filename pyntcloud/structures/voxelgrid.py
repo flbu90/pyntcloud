@@ -112,7 +112,7 @@ class VoxelGrid(Structure):
             self.segments[2], points[:, 2]) - 1, 0, self.x_y_z[2])
         voxel_n = np.ravel_multi_index([voxel_x, voxel_y, voxel_z], self.x_y_z)
 
-        return voxel_n
+        return voxel_n, voxel_x, voxel_y, voxel_z
 
     def get_feature_vector(self, mode="binary"):
         """Return a vector of size self.n_voxels. See mode options below.

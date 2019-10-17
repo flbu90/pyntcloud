@@ -21,7 +21,7 @@ except ImportError:
 
 class VoxelGrid(Structure):
 
-    def __init__(self, *, points, rgb, n_x=1, n_y=1, n_z=1, size_x=None, size_y=None, size_z=None, regular_bounding_box=True):
+    def __init__(self, *, points, rgb, normals, curvatures, n_x=1, n_y=1, n_z=1, size_x=None, size_y=None, size_z=None, regular_bounding_box=True):
         """Grid of voxels with support for different build methods.
 
         Parameters
@@ -40,7 +40,7 @@ class VoxelGrid(Structure):
             If True, the bounding box of the point cloud will be adjusted
             in order to have all the dimensions of equal length.
         """
-        super().__init__(points=points, rgb=rgb)
+        super().__init__(points=points, rgb=rgb, normals=normals, curvatures=curvatures)
         self.x_y_z = [n_x, n_y, n_z]
         self.sizes = [size_x, size_y, size_z]
         self.regular_bounding_box = regular_bounding_box
@@ -173,11 +173,31 @@ class VoxelGrid(Structure):
                 color[voxel_idx] = np.append(mean_color, [1])
                 
             # we need a shape of (n_X, n_Y, n_Z, 4), 4 for rgba
-            color = color.reshape(self.x_y_z + [4])
+            color = color.reshape(self.x_y_z + [5])
             vector[np.unique(self.voxel_n)] = 1
             vector = vector.reshape(self.x_y_z)
             return vector, color
-
+        elif mode == "custom":
+            features = np.zeros((self.n_voxels,5))
+            voxel_idxs = []
+            for i in range(len(self.voxel_n)):
+                voxel_idx = self.voxel_n[i]
+                if(voxel_idx in voxel_idxs):
+                    continue
+                voxel_idxs.append(voxel_idx)
+                voxel_list_idxs = np.where(self.voxel_n == voxel_idx)
+                mean_normal = np.mean(self._normals[voxel_list_idxs], axis=0)
+                mean_curvature = np.mean(self._curvatures[voxel_list_idxs])
+                occ = np.array([1.0])
+                feature = np.concatenate((occ, mean_normal, [mean_curvature]))
+                #print(feature.shape)
+                features[voxel_idx] = feature
+                
+            features = features.reshape(self.x_y_z + [5])
+            vector[np.unique(self.voxel_n)] = 1
+            vector = vector.reshape(self.x_y_z)
+            return vector, features
+            
         elif mode == "density":
             count = np.bincount(self.voxel_n)
             vector[:len(count)] = count

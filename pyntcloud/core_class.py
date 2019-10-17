@@ -50,11 +50,22 @@ class PyntCloud(object):
         self.xyz = self.points[["x", "y", "z"]].values
         self.centroid = self.xyz.mean(0)
         self.rgb = None
+        self.normals = None
+        self.curvatures=None
         try:
             self.rgb = self.points[["r", "g", "b"]].values
         except:
-            #print("no rgb data in points")
-            return
+            print("no rgb data in points")
+            
+        try:
+            self.normals = self.points[["nx", "ny", "nz"]].values
+        except:
+            print("no normal data in points")
+            
+        try:
+            self.curvatures = self.points[["c"]].values
+        except:
+            print("no curvature data in points")
 
     def __repr__(self):
         default = [
@@ -353,7 +364,7 @@ class PyntCloud(object):
         if name in ALL_STRUCTURES:
             info = ALL_STRUCTURES[name].extract_info(pyntcloud=self)
             if name == "delaunay3D" or name == "convex_hull":
-                del info["rgb"]
+                del info["rgb", "normals", "curvatures"]
             #print(info)
             structure = ALL_STRUCTURES[name](**info, **kwargs)
             structure.compute()

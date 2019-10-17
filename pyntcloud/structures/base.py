@@ -4,11 +4,14 @@ from abc import ABC, abstractmethod, abstractclassmethod
 class Structure(ABC):
     """Base class for structures."""
 
-    def __init__(self, *, points, rgb):
+    def __init__(self, *, points, rgb, normals, curvatures):
         self._points = points
-        if rgb is None:
-            return
-        self._rgb = rgb
+        if rgb is not None:
+            self._rgb = rgb
+        if normals is not None:
+            self._normals = normals
+        if curvatures is not None:
+            self._curvatures = curvatures
 
     def get_and_set(self, pyntcloud):
         pyntcloud.structures[self.id] = self
@@ -19,7 +22,9 @@ class Structure(ABC):
         """ABC API"""
         info = {
             "points": pyntcloud.xyz,
-            "rgb":  pyntcloud.rgb
+            "rgb":  pyntcloud.rgb,
+            "normals": pyntcloud.normals,
+            "curvatures": pyntcloud.curvatures
         }
         return info
 
